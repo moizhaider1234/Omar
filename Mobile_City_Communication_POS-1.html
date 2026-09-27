@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mobile City Communication - POS</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#eef3f8;color:#132238}
+.app{display:flex;min-height:100vh}.sidebar{width:235px;background:#082544;color:#fff;padding:18px 12px;position:fixed;top:0;bottom:0}
+.brand{font-size:22px;font-weight:800;padding:8px 10px 18px}.brand span{color:#20a8ff}.shopphone{font-size:13px;color:#b9c9da;padding:0 10px 18px}
+.nav button{display:block;width:100%;padding:13px 12px;margin:4px 0;border:0;border-radius:8px;background:transparent;color:#e7eef7;text-align:left;font-size:14px;cursor:pointer}.nav button.active,.nav button:hover{background:#087cf0}
+.main{margin-left:235px;width:calc(100% - 235px)}.top{background:#fff;padding:14px 22px;border-bottom:1px solid #d8e1eb;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:5}.address{font-size:13px;color:#52657b}.page{padding:18px}
+.cards{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}.card{padding:16px;border-radius:10px;color:#fff;font-weight:700;min-height:82px}.c1{background:#0aa15c}.c2{background:#1788dc}.c3{background:#6952c7}.c4{background:#13a86d}.c5{background:#bf248e}.c6{background:#f08a19}.label{font-size:12px;opacity:.9}.value{font-size:20px;margin-top:8px}
+.grid{display:grid;grid-template-columns:1fr 365px;gap:14px;margin-top:14px}.panel{background:#fff;border:1px solid #dbe4ee;border-radius:10px;padding:14px}.searchrow{display:flex;gap:8px}.searchrow input{flex:1;padding:12px;border:1px solid #ccd8e5;border-radius:7px}.btn{border:0;border-radius:7px;padding:11px 14px;background:#0b7ff0;color:#fff;font-weight:700;cursor:pointer}.btn.secondary{background:#e8f0f8;color:#17304c}.cats{display:flex;gap:7px;margin:12px 0;flex-wrap:wrap}.cat{border:0;background:#edf3f9;padding:9px 14px;border-radius:7px;cursor:pointer}.cat.active{background:#087cf0;color:white}
+.products{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.product{border:1px solid #dce5ee;border-radius:8px;padding:10px;cursor:pointer;background:#fff}.product:hover{border-color:#087cf0;box-shadow:0 2px 8px #dbe5ef}.picon{height:90px;background:#f1f5f9;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:35px}.pname{font-weight:700;margin-top:8px}.price{color:#0874d1;font-weight:700;margin-top:4px}.stock{font-size:11px;color:#6b7b8d;margin-top:3px}
+.cart{position:sticky;top:86px}.cart h2{margin:0 0 10px;font-size:18px}.customer{display:flex;gap:6px;margin-bottom:8px}.customer input{width:50%;padding:9px;border:1px solid #ccd8e5;border-radius:6px}.carttable{width:100%;border-collapse:collapse;font-size:12px}.carttable th,.carttable td{padding:7px 4px;border-bottom:1px solid #edf1f5;text-align:left}.totals{margin-top:10px;border-top:1px solid #dce5ee;padding-top:10px}.total{font-size:22px;font-weight:800;color:#076cc6}.payments{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;margin-top:10px}.pay{padding:11px;border:0;border-radius:7px;color:#fff;font-weight:700;cursor:pointer}.cash{background:#0aa15c}.ep{background:#0aa86b}.jc{background:#c22491}.load{background:#166fe5}.bank{background:#1454a4}.credit{background:#f08a19}.split{background:#6b45c7}.actions{display:flex;gap:8px;margin-top:10px}.complete{flex:1;background:#0aa15c}.danger{background:#e64b4b}.bottomgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}.table{width:100%;border-collapse:collapse}.table th,.table td{padding:8px;border-bottom:1px solid #e8edf2;text-align:left;font-size:12px}
+.page-section{display:none}.page-section.active{display:block}
+.formgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.formgrid input,.formgrid select{padding:11px;border:1px solid #ccd8e5;border-radius:6px}.modal{display:none;position:fixed;inset:0;background:#0008;align-items:center;justify-content:center;z-index:20}.modal.show{display:flex}.modalbox{background:#fff;border-radius:12px;padding:20px;width:min(500px,92vw)}.modalbox h3{margin-top:0}
+@media(max-width:1000px){.sidebar{width:75px}.brand,.shopphone{display:none}.main{margin-left:75px;width:calc(100% - 75px)}.nav button{font-size:0;text-align:center}.nav button:first-letter{font-size:20px}.cards{grid-template-columns:repeat(3,1fr)}.grid{grid-template-columns:1fr}.products{grid-template-columns:repeat(3,1fr)}.cart{position:static}}
+@media print{body{background:#fff}.sidebar,.top,.page:not(.printable),.no-print{display:none!important}.main{margin:0;width:100%}.receipt{display:block!important}}
+.receipt{display:none}
+</style>
+</head>
+<body>
+
+<div id="loginScreen" style="position:fixed;inset:0;background:#082544;display:flex;align-items:center;justify-content:center;z-index:9999">
+  <div style="background:#fff;width:min(380px,92vw);padding:28px;border-radius:14px;box-shadow:0 20px 60px #0005;text-align:center">
+    <div style="font-size:28px;font-weight:800">📱 Mobile <span style="color:#168fe8">City</span></div>
+    <div style="font-weight:700;margin-bottom:20px">Communication POS</div>
+    <input id="loginUser" placeholder="Username" value="admin" style="width:100%;padding:12px;margin:5px 0;border:1px solid #ccd8e5;border-radius:7px">
+    <input id="loginPass" type="password" placeholder="Password" value="1234" style="width:100%;padding:12px;margin:5px 0;border:1px solid #ccd8e5;border-radius:7px">
+    <button onclick="login()" class="btn" style="width:100%;margin-top:10px">Login</button>
+    <div style="font-size:11px;color:#718096;margin-top:10px">Demo login: admin / 1234</div>
+  </div>
+</div>
+
+<div class="app">
+<aside class="sidebar">
+  <div class="brand">📱 Mobile <span>City</span><br>Communication</div>
+  <div class="shopphone">03022390803</div>
+  <div class="nav">
+    <button class="active" onclick="showPage('pos',this)">🛒 POS / Sales</button>
+    <button onclick="showPage('inventory',this)">📦 Products / Inventory</button>
+    <button onclick="showPage('customers',this)">👥 Customers</button>
+    <button onclick="showPage('wallets',this)">💳 EasyPaisa / JazzCash</button>
+    <button onclick="showPage('load',this)">📲 Mobile Load</button>
+    <button onclick="showPage('expenses',this)">💸 Expenses</button>
+    <button onclick="showPage('reports',this)">📊 Reports</button>
+<button onclick="showPage('closing',this)">🔒 Daily Closing</button>
+  </div>
+</aside>
+
+<main class="main">
+<header class="top">
+  <div><b>Mobile City Communication</b><div class="address">R-313, Block 17, FB Area, Karachi • 03022390803</div></div>
+  <div><b id="clock"></b> &nbsp; | &nbsp; Admin (Owner)</div>
+</header>
+
+<section id="pos" class="page-section active page">
+  <div class="cards">
+    <div class="card c1"><div class="label">Today's Sales</div><div class="value" id="salesCard">Rs. 0</div></div>
+    <div class="card c2"><div class="label">Today's Profit</div><div class="value" id="profitCard">Rs. 0</div></div>
+    <div class="card c3"><div class="label">Cash in Hand</div><div class="value" id="cashCard">Rs. 0</div></div>
+    <div class="card c4"><div class="label">EasyPaisa Balance</div><div class="value" id="epCard">Rs. 0</div></div>
+    <div class="card c5"><div class="label">JazzCash Balance</div><div class="value" id="jcCard">Rs. 0</div></div>
+    <div class="card c6"><div class="label">Transactions</div><div class="value" id="txCard">0</div></div>
+  </div>
+
+  <div class="grid">
+    <div class="panel">
+      <div class="searchrow">
+        <input id="search" placeholder="Search product, barcode, IMEI or SKU..." oninput="renderProducts()">
+        <button class="btn secondary" onclick="openScanner()">▣ Scan Barcode</button>
+        <button class="btn" onclick="openProduct()">＋ Add Product</button>
+      </div>
+      <div class="cats">
+        <button class="cat active" onclick="filterCat('All',this)">All</button>
+        <button class="cat" onclick="filterCat('Mobiles',this)">Mobiles</button>
+        <button class="cat" onclick="filterCat('Accessories',this)">Accessories</button>
+        <button class="cat" onclick="filterCat('SIMs',this)">SIMs</button>
+        <button class="cat" onclick="filterCat('Load',this)">Load / Recharge</button>
+      </div>
+      <div id="products" class="products"></div>
+      <div class="bottomgrid">
+        <div class="panel"><b>⚠ Low Stock Alert</b><table class="table" id="lowstock"></table></div>
+        <div class="panel"><b>Recent Sales</b><table class="table" id="recents"></table></div>
+      </div>
+    </div>
+
+    <div class="panel cart">
+      <h2>Current Sale</h2>
+      <div class="customer"><input id="custName" placeholder="Customer name"><input id="custPhone" placeholder="Mobile No."></div>
+      <table class="carttable"><thead><tr><th>Product</th><th>Qty</th><th>Price</th><th>Total</th><th></th></tr></thead><tbody id="cart"></tbody></table>
+      <div class="totals">
+        <div>Subtotal <span style="float:right" id="subtotal">Rs. 0</span></div>
+        <div>Discount <span style="float:right"><input id="discount" type="number" value="0" min="0" style="width:90px;padding:5px" oninput="renderCart()"></span></div>
+        <div style="margin-top:10px">Total <span style="float:right" class="total" id="total">Rs. 0</span></div>
+      </div>
+      <b>Payment Method</b>
+      <div class="payments">
+        <button class="pay cash" onclick="setPayment('Cash')">💵 Cash</button>
+        <button class="pay ep" onclick="setPayment('EasyPaisa')">EasyPaisa</button>
+        <button class="pay jc" onclick="setPayment('JazzCash')">JazzCash</button>
+        <button class="pay load" onclick="setPayment('Mobile Load')">📲 Mobile Load</button>
+        <button class="pay bank" onclick="setPayment('Bank/Card')">Bank / Card</button>
+        <button class="pay credit" onclick="setPayment('Credit')">Customer Credit</button>
+        <button class="pay split" onclick="splitPayment()">Split Payment</button>
+      </div>
+      <div style="margin-top:10px;padding:8px;background:#f4f7fa;border-radius:7px">Selected: <b id="payment">Cash</b></div>
+      <div class="actions">
+        <button class="btn danger" onclick="clearCart()">Clear</button>
+        <button class="btn complete" onclick="completeSale()">✓ Complete Sale & Print</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="inventory" class="page-section page">
+  <div class="panel"><h2>Products / Inventory</h2><button class="btn" onclick="openProduct()">＋ Add Product</button><table class="table" id="inventoryTable"></table></div>
+</section>
+<section id="customers" class="page-section page"><div class="panel"><h2>Customers</h2><table class="table" id="customerTable"></table></div></section>
+<section id="wallets" class="page-section page"><div class="panel"><h2>EasyPaisa & JazzCash Ledger</h2><p>Track wallet receipts and payments from every completed sale.</p><table class="table" id="walletTable"></table></div></section>
+<section id="load" class="page-section page"><div class="panel"><h2>Mobile Load / Recharge</h2><div class="formgrid"><input id="loadPhone" placeholder="Customer mobile number"><select id="network"><option>Jazz</option><option>Zong</option><option>Telenor</option><option>Ufone</option></select><input id="loadAmount" type="number" placeholder="Amount"><button class="btn" onclick="addLoad()">Record Load</button></div><table class="table" id="loadTable"></table></div></section>
+<section id="expenses" class="page-section page"><div class="panel"><h2>Expenses</h2><div class="formgrid"><input id="expenseName" placeholder="Expense description"><input id="expenseAmount" type="number" placeholder="Amount"><button class="btn" onclick="addExpense()">Save Expense</button></div><table class="table" id="expenseTable"></table></div></section>
+
+<section id="closing" class="page-section page">
+  <div class="panel">
+    <h2>🔒 Daily Sales Closing</h2>
+    <p>Review the day's totals before closing the register.</p>
+    <div class="cards" style="grid-template-columns:repeat(3,1fr);margin:14px 0">
+      <div class="card c1"><div class="label">Total Sales</div><div class="value" id="closeSales">Rs. 0</div></div>
+      <div class="card c2"><div class="label">Gross Profit</div><div class="value" id="closeProfit">Rs. 0</div></div>
+      <div class="card c3"><div class="label">Transactions</div><div class="value" id="closeTx">0</div></div>
+    </div>
+    <table class="table">
+      <tr><th>Payment Method</th><th>Total</th></tr>
+      <tr><td>Cash</td><td id="closeCash">Rs. 0</td></tr>
+      <tr><td>EasyPaisa</td><td id="closeEP">Rs. 0</td></tr>
+      <tr><td>JazzCash</td><td id="closeJC">Rs. 0</td></tr>
+      <tr><td>Mobile Load</td><td id="closeLoad">Rs. 0</td></tr>
+      <tr><td>Bank / Card</td><td id="closeBank">Rs. 0</td></tr>
+      <tr><td>Customer Credit</td><td id="closeCredit">Rs. 0</td></tr>
+    </table>
+    <div style="margin-top:14px">
+      <button class="btn" onclick="closeDay()">🔒 Close Today's Register</button>
+      <button class="btn secondary" onclick="window.print()">Print Closing Report</button>
+    </div>
+    <div id="closingStatus" style="margin-top:12px;color:#0a8b52;font-weight:700"></div>
+  </div>
+</section>
+
+<section id="reports" class="page-section page"><div class="panel"><h2>Reports</h2><p>Sales: <b id="rSales">Rs. 0</b> &nbsp; Profit: <b id="rProfit">Rs. 0</b> &nbsp; Transactions: <b id="rTx">0</b></p><button class="btn" onclick="window.print()">Print Report</button></div></section>
+
+<div id="productModal" class="modal"><div class="modalbox"><h3>Add Product</h3><div class="formgrid" style="grid-template-columns:1fr 1fr"><input id="pname" placeholder="Product name"><select id="pcat"><option>Mobiles</option><option>Accessories</option><option>SIMs</option></select><input id="pprice" type="number" placeholder="Sale price"><input id="pcost" type="number" placeholder="Purchase price"><input id="pstock" type="number" placeholder="Stock"><input id="pbarcode" placeholder="Barcode (scan or type)"></div><div style="margin-top:12px"><button class="btn" onclick="saveProduct()">Save</button> <button class="btn secondary" onclick="closeProduct()">Cancel</button></div></div></div>
+
+<div id="scannerModal" class="modal">
+  <div class="modalbox">
+    <h3>Scan Barcode</h3>
+    <div id="scannerView" style="width:100%;min-height:280px;background:#111;border-radius:8px;overflow:hidden"></div>
+    <div id="scannerStatus" style="margin-top:10px;font-size:13px;color:#52657b">Starting camera...</div>
+    <div style="margin-top:12px"><button class="btn secondary" onclick="closeScanner()">Close</button></div>
+  </div>
+</div>
+
+<div class="receipt" id="receipt"></div>
+</main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script>
+const key='mcc_pos_v1';
+let db=JSON.parse(localStorage.getItem(key)||'null')||{
+ products:[
+ {id:1,name:'Samsung A15',cat:'Mobiles',price:45000,cost:42000,stock:3,imei:'356789123456789'},
+ {id:2,name:'Samsung A55',cat:'Mobiles',price:75000,cost:70000,stock:2},
+ {id:3,name:'iPhone 13',cat:'Mobiles',price:120000,cost:112000,stock:1},
+ {id:4,name:'Redmi Note 13',cat:'Mobiles',price:52000,cost:48000,stock:4},
+ {id:5,name:'Charger',cat:'Accessories',price:1000,cost:650,stock:12},
+ {id:6,name:'Data Cable',cat:'Accessories',price:500,cost:250,stock:3},
+ {id:7,name:'Handsfree',cat:'Accessories',price:800,cost:400,stock:8},
+ {id:8,name:'Power Bank',cat:'Accessories',price:2500,cost:1900,stock:7},
+ {id:9,name:'Mobile Cover',cat:'Accessories',price:300,cost:120,stock:5},
+ {id:10,name:'Screen Protector',cat:'Accessories',price:200,cost:80,stock:5},
+ {id:11,name:'SIM Card',cat:'SIMs',price:300,cost:200,stock:20}
+ ],sales:[],customers:[],wallets:[],loads:[],expenses:[]
+};
+let cart=[],category='All',payment='Cash';
+function save(){localStorage.setItem(key,JSON.stringify(db));}
+function money(n){return 'Rs. '+Number(n||0).toLocaleString('en-PK')}
+function clock(){document.getElementById('clock').textContent=new Date().toLocaleString('en-PK',{dateStyle:'medium',timeStyle:'short'});}
+setInterval(clock,1000);clock();
+function showPage(id,el){document.querySelectorAll('.page-section').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));el.classList.add('active');renderAll();}
+function filterCat(c,el){category=c;document.querySelectorAll('.cat').forEach(x=>x.classList.remove('active'));el.classList.add('active');renderProducts();}
+function renderProducts(){
+ const q=(document.getElementById('search')?.value||'').toLowerCase();
+ let ps=db.products.filter(p=>(category==='All'||p.cat===category)&&((p.name+' '+p.cat+' '+(p.imei||'')+' '+(p.barcode||'')).toLowerCase().includes(q)));
+ document.getElementById('products').innerHTML=ps.map(p=>`<div class="product" onclick="addToCart(${p.id})"><div class="picon">${p.cat==='Mobiles'?'📱':p.cat==='SIMs'?'💳':'🔌'}</div><div class="pname">${p.name}</div><div class="price">${money(p.price)}</div><div class="stock">Stock: ${p.stock}</div></div>`).join('');
+}
+function addToCart(id){let p=db.products.find(x=>x.id===id);if(!p||p.stock<=0)return alert('Out of stock');let x=cart.find(i=>i.id===id);if(x){if(x.qty>=p.stock)return alert('Not enough stock');x.qty++;}else cart.push({id,qty:1});renderCart();}
+function renderCart(){
+ let sub=0;document.getElementById('cart').innerHTML=cart.map(i=>{let p=db.products.find(x=>x.id===i.id),t=p.price*i.qty;sub+=t;return `<tr><td>${p.name}</td><td>${i.qty}</td><td>${p.price.toLocaleString()}</td><td>${t.toLocaleString()}</td><td><button onclick="removeCart(${p.id})">✕</button></td></tr>`}).join('');
+ let d=Number(document.getElementById('discount').value||0),total=Math.max(0,sub-d);document.getElementById('subtotal').textContent=money(sub);document.getElementById('total').textContent=money(total);
+}
+function removeCart(id){cart=cart.filter(x=>x.id!==id);renderCart();}
+function clearCart(){cart=[];document.getElementById('discount').value=0;renderCart();}
+function setPayment(p){payment=p;document.getElementById('payment').textContent=p;}
+function splitPayment(){let total=getTotal(),a=Number(prompt('Cash amount:',Math.floor(total/2)));if(isNaN(a)||a<0||a>total)return;let b=total-a;payment='Split: Cash + EasyPaisa';document.getElementById('payment').textContent=payment+' ('+money(a)+' + '+money(b)+')';}
+function getTotal(){let s=cart.reduce((a,i)=>{let p=db.products.find(x=>x.id===i.id);return a+p.price*i.qty},0);return Math.max(0,s-Number(document.getElementById('discount').value||0));}
+function completeSale(){
+ if(!cart.length)return alert('Add a product first.');
+ let total=getTotal(),name=document.getElementById('custName').value||'Walk-in Customer',phone=document.getElementById('custPhone').value||'';
+ cart.forEach(i=>{let p=db.products.find(x=>x.id===i.id);p.stock-=i.qty});
+ let profit=cart.reduce((a,i)=>{let p=db.products.find(x=>x.id===i.id);return a+(p.price-p.cost)*i.qty},0)-Number(document.getElementById('discount').value||0);
+ let sale={id:Date.now(),invoice:'INV-'+String(db.sales.length+1).padStart(5,'0'),date:new Date().toISOString(),customer:name,phone,total,profit,payment,items:cart.map(i=>({...i,name:db.products.find(p=>p.id===i.id).name,price:db.products.find(p=>p.id===i.id).price}))};
+ db.sales.unshift(sale);
+ if(name!=='Walk-in Customer'){let c=db.customers.find(x=>x.phone===phone);if(!c){c={name,phone,balance:0};db.customers.push(c)}if(payment==='Credit')c.balance+=total;}
+ if(payment==='EasyPaisa'||payment==='JazzCash')db.wallets.unshift({date:sale.date,type:payment,amount:total,invoice:sale.invoice});
+ save();printReceipt(sale);clearCart();document.getElementById('custName').value='';document.getElementById('custPhone').value='';renderAll();
+}
+function printReceipt(s){
+ let d=new Date(s.date),items=s.items.map(i=>`<div style="display:flex;justify-content:space-between"><span>${i.name} x${i.qty}</span><span>${(i.price*i.qty).toLocaleString()}</span></div>`).join('');
+ document.getElementById('receipt').innerHTML=`<div style="width:72mm;margin:auto;font:12px Arial"><div style="text-align:center"><b style="font-size:17px">MOBILE CITY COMMUNICATION</b><br>03022390803<br>R-313, Block 17, FB Area, Karachi<br>--------------------------------</div><b>Invoice:</b> ${s.invoice}<br>${d.toLocaleString('en-PK')}<br><b>Customer:</b> ${s.customer}<br>--------------------------------${items}<br>--------------------------------<div style="display:flex;justify-content:space-between"><b>TOTAL</b><b>${money(s.total)}</b></div><div>Payment: ${s.payment}</div><br><div style="text-align:center">Thank You! Visit Again</div></div>`;
+ window.print();
+}
+let html5QrCode=null;
+function openScanner(){
+ document.getElementById('scannerModal').classList.add('show');
+ document.getElementById('scannerStatus').textContent='Starting camera...';
+ if(typeof Html5Qrcode==='undefined'){document.getElementById('scannerStatus').textContent='Scanner library failed to load. Check your internet connection.';return;}
+ html5QrCode=new Html5Qrcode('scannerView',{formatsToSupport:[Html5QrcodeSupportedFormats.EAN_13,Html5QrcodeSupportedFormats.EAN_8,Html5QrcodeSupportedFormats.UPC_A,Html5QrcodeSupportedFormats.UPC_E,Html5QrcodeSupportedFormats.CODE_128,Html5QrcodeSupportedFormats.CODE_39,Html5QrcodeSupportedFormats.ITF,Html5QrcodeSupportedFormats.QR_CODE],verbose:false,experimentalFeatures:{useBarCodeDetectorIfSupported:true}});
+ html5QrCode.start(
+   {facingMode:{ideal:'environment'}},
+   {fps:12,qrbox:{width:290,height:160},aspectRatio:1.5,videoConstraints:{facingMode:{ideal:'environment'},width:{min:1280,ideal:1920},height:{min:720,ideal:1080},focusMode:'continuous'}},
+   (decodedText)=>{onScanSuccess(decodedText);},
+   ()=>{/* ignore per-frame no-scan errors */}
+ ).then(()=>{document.getElementById('scannerStatus').textContent='Fill the box with the barcode, held flat and steady, about 10-15cm away...';})
+ .catch(err=>{document.getElementById('scannerStatus').textContent='Camera error: '+err+'. On iPhone/Android this page must be opened over https:// (or localhost) and camera access must be allowed.';});
+}
+function closeScanner(){
+ if(html5QrCode){
+   html5QrCode.stop().then(()=>{html5QrCode.clear();html5QrCode=null;}).catch(()=>{html5QrCode=null;});
+ }
+ document.getElementById('scannerModal').classList.remove('show');
+}
+function onScanSuccess(decodedText){
+ document.getElementById('search').value=decodedText;
+ renderProducts();
+ closeScanner();
+ const found=db.products.some(p=>(p.barcode&&p.barcode===decodedText)||(p.imei&&p.imei===decodedText));
+ if(!found)alert('No product found for barcode: '+decodedText+'\n\nYou can add it now with "＋ Add Product" (paste this into the Barcode field).');
+}
+function openProduct(){document.getElementById('productModal').classList.add('show')}
+function closeProduct(){document.getElementById('productModal').classList.remove('show')}
+function saveProduct(){let p={id:Date.now(),name:document.getElementById('pname').value,cat:document.getElementById('pcat').value,price:Number(document.getElementById('pprice').value),cost:Number(document.getElementById('pcost').value),stock:Number(document.getElementById('pstock').value),barcode:document.getElementById('pbarcode').value.trim()};if(!p.name||!p.price)return alert('Enter product name and price');db.products.push(p);save();closeProduct();document.getElementById('pbarcode').value='';renderAll();}
+function addLoad(){let phone=document.getElementById('loadPhone').value,network=document.getElementById('network').value,amount=Number(document.getElementById('loadAmount').value);if(!phone||!amount)return alert('Enter mobile number and amount');db.loads.unshift({date:new Date().toISOString(),phone,network,amount});save();renderAll();document.getElementById('loadPhone').value='';document.getElementById('loadAmount').value='';}
+function addExpense(){let name=document.getElementById('expenseName').value,amount=Number(document.getElementById('expenseAmount').value);if(!name||!amount)return alert('Enter expense and amount');db.expenses.unshift({date:new Date().toISOString(),name,amount});save();renderAll();}
+function renderTables(){
+ document.getElementById('inventoryTable').innerHTML='<tr><th>Product</th><th>Category</th><th>Sale Price</th><th>Cost</th><th>Stock</th></tr>'+db.products.map(p=>`<tr><td>${p.name}</td><td>${p.cat}</td><td>${money(p.price)}</td><td>${money(p.cost)}</td><td>${p.stock}</td></tr>`).join('');
+ document.getElementById('customerTable').innerHTML='<tr><th>Name</th><th>Phone</th><th>Outstanding</th></tr>'+db.customers.map(c=>`<tr><td>${c.name}</td><td>${c.phone}</td><td>${money(c.balance)}</td></tr>`).join('');
+ document.getElementById('walletTable').innerHTML='<tr><th>Date</th><th>Wallet</th><th>Amount</th><th>Invoice</th></tr>'+db.wallets.slice(0,30).map(w=>`<tr><td>${new Date(w.date).toLocaleString('en-PK')}</td><td>${w.type}</td><td>${money(w.amount)}</td><td>${w.invoice}</td></tr>`).join('');
+ document.getElementById('loadTable').innerHTML='<tr><th>Date</th><th>Number</th><th>Network</th><th>Amount</th></tr>'+db.loads.slice(0,30).map(x=>`<tr><td>${new Date(x.date).toLocaleString('en-PK')}</td><td>${x.phone}</td><td>${x.network}</td><td>${money(x.amount)}</td></tr>`).join('');
+ document.getElementById('expenseTable').innerHTML='<tr><th>Date</th><th>Description</th><th>Amount</th></tr>'+db.expenses.slice(0,30).map(x=>`<tr><td>${new Date(x.date).toLocaleString('en-PK')}</td><td>${x.name}</td><td>${money(x.amount)}</td></tr>`).join('');
+ document.getElementById('lowstock').innerHTML='<tr><th>Product</th><th>Stock</th></tr>'+db.products.filter(p=>p.stock<=5).slice(0,8).map(p=>`<tr><td>${p.name}</td><td>${p.stock}</td></tr>`).join('');
+ document.getElementById('recents').innerHTML='<tr><th>Invoice</th><th>Customer</th><th>Amount</th></tr>'+db.sales.slice(0,7).map(s=>`<tr><td>${s.invoice}</td><td>${s.customer}</td><td>${money(s.total)}</td></tr>`).join('');
+}
+
+function login(){
+  const u=document.getElementById('loginUser').value.trim();
+  const p=document.getElementById('loginPass').value;
+  if(u==='admin' && p==='1234'){
+    sessionStorage.setItem('mcc_logged_in','1');
+    document.getElementById('loginScreen').style.display='none';
+  }else alert('Invalid username or password.');
+}
+function checkLogin(){
+  if(sessionStorage.getItem('mcc_logged_in')==='1')
+    document.getElementById('loginScreen').style.display='none';
+}
+function todaySales(){
+  const today=new Date().toISOString().slice(0,10);
+  return db.sales.filter(s=>s.date.slice(0,10)===today);
+}
+function closingTotals(){
+  const ss=todaySales();
+  const sum=(arr)=>arr.reduce((a,s)=>a+s.total,0);
+  const by=(name)=>sum(ss.filter(s=>s.payment===name));
+  return {
+    sales:sum(ss), profit:ss.reduce((a,s)=>a+s.profit,0), tx:ss.length,
+    cash:by('Cash'), ep:by('EasyPaisa'), jc:by('JazzCash'),
+    load:by('Mobile Load'), bank:by('Bank/Card'), credit:by('Credit')
+  };
+}
+function renderClosing(){
+  const x=closingTotals();
+  ['closeSales','closeProfit','closeTx','closeCash','closeEP','closeJC','closeLoad','closeBank','closeCredit'].forEach(id=>{
+    const map={closeSales:x.sales,closeProfit:x.profit,closeTx:x.tx,closeCash:x.cash,closeEP:x.ep,closeJC:x.jc,closeLoad:x.load,closeBank:x.bank,closeCredit:x.credit};
+    document.getElementById(id).textContent=id==='closeTx'?map[id]:money(map[id]);
+  });
+  const last=db.dailyClosings?.[0];
+  document.getElementById('closingStatus').textContent=last ? 'Last closed: '+new Date(last.date).toLocaleString('en-PK') : '';
+}
+function closeDay(){
+  const x=closingTotals();
+  if(!db.dailyClosings) db.dailyClosings=[];
+  db.dailyClosings.unshift({date:new Date().toISOString(),...x});
+  save(); renderClosing();
+  alert('Today’s register has been closed successfully.');
+}
+
+function renderAll(){
+ renderProducts();renderCart();renderTables();renderClosing();
+ let sales=db.sales.reduce((a,s)=>a+s.total,0),profit=db.sales.reduce((a,s)=>a+s.profit,0),cash=db.sales.filter(s=>s.payment==='Cash').reduce((a,s)=>a+s.total,0),ep=db.wallets.filter(w=>w.type==='EasyPaisa').reduce((a,w)=>a+w.amount,0),jc=db.wallets.filter(w=>w.type==='JazzCash').reduce((a,w)=>a+w.amount,0);
+ document.getElementById('salesCard').textContent=money(sales);document.getElementById('profitCard').textContent=money(profit);document.getElementById('cashCard').textContent=money(cash);document.getElementById('epCard').textContent=money(ep);document.getElementById('jcCard').textContent=money(jc);document.getElementById('txCard').textContent=db.sales.length;
+ document.getElementById('rSales').textContent=money(sales);document.getElementById('rProfit').textContent=money(profit);document.getElementById('rTx').textContent=db.sales.length;
+}
+renderAll();checkLogin();
+</script>
+</body>
+</html>
